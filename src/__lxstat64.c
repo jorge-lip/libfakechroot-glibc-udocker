@@ -40,9 +40,18 @@ wrapper(__lxstat64, int, (int ver, const char * filename, struct stat64 * buf))
     debug("__lxstat64(%d, \"%s\", &buf)", ver, filename);
 
     if (filename && !fakechroot_localdir(filename)) {
-        char abs_filename[FAKECHROOT_PATH_MAX];
-        rel2abs(filename, abs_filename);
-        filename = abs_filename;
+        /* Indigo udocker host map */        
+        int map_pos;
+        if ((map_pos = fakechroot_ismapdir(filename)) != -1) {
+            char fakechroot_buf[FAKECHROOT_PATH_MAX];
+            if (fakechroot_getmapdir(filename, map_pos, fakechroot_buf))
+                filename = fakechroot_buf;
+        }
+        else {
+            char abs_filename[FAKECHROOT_PATH_MAX];
+            rel2abs(filename, abs_filename);
+            filename = abs_filename;
+        }
     }
 
     return __lxstat64_rel(ver, filename, buf);
@@ -59,7 +68,7 @@ LOCAL int __lxstat64_rel(int ver, const char * filename, struct stat64 * buf)
 
     debug("__lxstat64_rel(%d, \"%s\", &buf)", ver, filename);
     orig_filename = filename;
-    expand_chroot_rel_path(filename);
+    l_expand_chroot_rel_path(filename);
     retval = nextcall(__lxstat64)(ver, filename, buf);
     /* deal with http://bugs.debian.org/561991 */
     if ((retval == 0) && (buf->st_mode & S_IFMT) == S_IFLNK)

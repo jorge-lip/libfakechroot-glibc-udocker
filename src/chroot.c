@@ -47,7 +47,9 @@
 wrapper(chroot, int, (const char * path))
 {
     char *ld_library_path, *separator, *new_ld_library_path;
+    /*
     const char *fakechroot_base = getenv("FAKECHROOT_BASE");
+    */
     int status;
     size_t len;
     char cwd[FAKECHROOT_PATH_MAX];

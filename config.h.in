@@ -84,6 +84,9 @@
    */
 #undef HAVE_ALLOCA_H
 
+/* Define to 1 if you have the `audit_log_acct_message' function. */
+#undef HAVE_AUDIT_LOG_ACCT_MESSAGE
+
 /* Define to 1 if you have the `bind' function. */
 #undef HAVE_BIND
 
@@ -522,6 +525,9 @@
 
 /* Define to 1 if you have the `renameat' function. */
 #undef HAVE_RENAMEAT
+
+/* Define to 1 if you have the `renameat2' function. */
+#undef HAVE_RENAMEAT2
 
 /* Define to 1 if you have the `revoke' function. */
 #undef HAVE_REVOKE

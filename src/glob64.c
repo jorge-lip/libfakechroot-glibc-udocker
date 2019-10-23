@@ -39,7 +39,9 @@ wrapper(glob64, int, (const char * pattern, int flags, int (* errfunc) (const ch
         return rc;
 
     for (i = 0; i < pglob->gl_pathc; i++) {
+        /*
         const char *fakechroot_base = getenv("FAKECHROOT_BASE");
+        */
         char tmp[FAKECHROOT_PATH_MAX], *tmpptr;
 
         strcpy(tmp, pglob->gl_pathv[i]);
