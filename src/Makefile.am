@@ -64,6 +64,7 @@ libfakechroot_la_SOURCES = \
     freopen.c \
     freopen64.c \
     fts.c \
+    fts64.c \
     ftw.c \
     ftw64.c \
     futimesat.c \
@@ -171,6 +172,7 @@ libfakechroot_la_SOURCES = \
     utime.c \
     utimensat.c \
     utimes.c \
+    statx.c \
     patchelf.c
 libfakechroot_la_LDFLAGS = -avoid-version
 

@@ -188,6 +188,7 @@ AC_CHECK_FUNCS(m4_normalize([
     fts_children
     fts_open
     fts_read
+    fts64_open
     ftw
     ftw64
     futimesat
@@ -281,6 +282,7 @@ AC_CHECK_FUNCS(m4_normalize([
     utimensat
     utimes
     vfork
+    statx
 ]))
 AC_FUNC_ALLOCA
 ASX_NO_CROSS_COMPILING([AC_FUNC_LSTAT_FOLLOWS_SLASHED_SYMLINK])
@@ -319,6 +321,14 @@ ACX_CHECK_FUNC_ARGTYPES([fts_open],
     [[char * const *_]],
     [[int _]],
     [[int (*_)(const FTSENT * const *, const FTSENT * const *)], [int (*_)(const FTSENT **, const FTSENT **)]])
+
+ACX_CHECK_FUNC_ARGTYPES([fts64_open],
+    [], [sys/types.h sys/stat.h fts.h],
+    [[FTSOBJ *], [char * const *_], [int], [int (*_)(const FTSENTRY **, const FTSENTRY **)]],
+    [[FTSOBJ *]],
+    [[char * const *_]],
+    [[int _]],
+    [[int (*_)(const FTSENTRY * const *, const FTSENTRY * const *)], [int (*_)(const FTSENTRY **, const FTSENTRY **)]])
 
 ACX_CHECK_FUNC_ARGTYPES([readlink],
     [
