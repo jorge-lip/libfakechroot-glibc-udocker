@@ -154,7 +154,7 @@ wrapper(execve, int, (const char * filename, char * const argv [], char * const 
                     int newsize, count = 1;
                     char *dir, *iter, *ld_library_real;
                     for (iter = *ep + (tp - tmpkey) + 1; *iter; iter++)
-                        if ( *iter == ':') count++;
+                        if (*iter == ':') count++;
                     newsize = sizeof("LD_LIBRARY_REAL=") + strlen(fakechroot_library_orig) +
                               strlen(tp+1) + (count * (strlen(fakechroot_base) + 1)) + 4;
                     free(newenvp[ld_library_real_pos]);
