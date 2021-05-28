@@ -65,6 +65,12 @@
 # define DOUBLE_SLASH_IS_DISTINCT_ROOT 0
 #endif
 
+/* udocker May-2021: in recent glibc _STAT_VER is not defined 
+   in sys/stat.h */
+#ifndef _STAT_VER
+# define _STAT_VER      0
+#endif
+
 wrapper(realpath, char *, (const char * name, char * resolved))
 {
     char *rpath, *dest, *extra_buf = NULL;

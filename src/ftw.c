@@ -213,6 +213,12 @@ int rpl_lstat (const char *, struct stat *);
 # define PATH_MAX 1024
 #endif
 
+/* udocker May-2021: in recent glibc _STAT_VER is not defined
+   in sys/stat.h */
+#ifndef _STAT_VER
+# define _STAT_VER      0
+#endif
+
 struct dir_data
 {
   DIR *stream;

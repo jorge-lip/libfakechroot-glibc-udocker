@@ -42,6 +42,12 @@
 # define STAT(path, sb) nextcall(stat)(path, sb)
 #endif
 
+/* udocker May-2021: in recent glibc _STAT_VER is not defined
+   in sys/stat.h */
+#ifndef _STAT_VER
+# define _STAT_VER      0
+#endif
+
 #include "getcwd_real.h"
 
 wrapper(chroot, int, (const char * path))

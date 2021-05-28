@@ -1,3 +1,11 @@
+## Version 2.18 UDOCKER-2
+
+* Add `_STAT_VER` to chroot.c, ftw.c, realpath.c
+
+## Version 2.18 UDOCKER-1
+
+* Add statx(), renameat() support
+
 ## Version 2.18
 
 26 Oct 2015
