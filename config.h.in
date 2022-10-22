@@ -742,6 +742,9 @@
 /* Define to 1 if you have the `vfork' function. */
 #undef HAVE_VFORK
 
+/* Define to 1 if you have the `statx' function. */
+#undef HAVE_STATX
+
 /* Define to 1 if you have the `_xftw' function. */
 #undef HAVE__XFTW
 
