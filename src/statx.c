@@ -22,22 +22,17 @@
 
 #ifdef HAVE_STATX
 
-#define _ATFILE_SOURCE
-#define _LARGEFILE64_SOURCE
-#define _BSD_SOURCE
-#define _DEFAULT_SOURCE
+#define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <limits.h>
-#include <stdlib.h>
 
 #include "libfakechroot.h"
 
 wrapper(statx, int, (int dirfd, const char *pathname, int flags, unsigned int mask, struct statx *statxbuf))
 {
-    debug("statx(%d, \"%s\", %d, %d, &buf, %d)", dirfd, pathname, flags, mask, statxbuf);
+    debug("statx(%d, \"%s\", %d, %u, &statxbuf)", dirfd, pathname, flags, mask);
 
     if (flags & AT_SYMLINK_NOFOLLOW) {
         l_expand_chroot_path_at(dirfd, pathname);
@@ -52,3 +47,4 @@ wrapper(statx, int, (int dirfd, const char *pathname, int flags, unsigned int ma
 #else
 typedef int empty_translation_unit;
 #endif
+
