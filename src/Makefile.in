@@ -163,7 +163,7 @@ am_libfakechroot_la_OBJECTS = __fxstatat.lo __fxstatat64.lo \
 	statvfs64.lo stpcpy.lo strchrnul.lo strlcpy.lo symlink.lo \
 	symlinkat.lo system.lo tempnam.lo tmpnam.lo truncate.lo \
 	truncate64.lo ulckpwdf.lo unlink.lo unlinkat.lo utime.lo \
-	utimensat.lo utimes.lo patchelf.lo
+	utimensat.lo utimes.lo statx.lo patchelf.lo
 libfakechroot_la_OBJECTS = $(am_libfakechroot_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -541,6 +541,7 @@ libfakechroot_la_SOURCES = \
     utime.c \
     utimensat.c \
     utimes.c \
+    statx.c \
     patchelf.c
 
 libfakechroot_la_LDFLAGS = -avoid-version
@@ -778,6 +779,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utime.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utimensat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utimes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statx.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
