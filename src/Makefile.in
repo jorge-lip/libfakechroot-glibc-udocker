@@ -157,7 +157,7 @@ am_libfakechroot_la_OBJECTS = __fxstatat.lo __fxstatat64.lo \
 	openat.lo openat64.lo opendir.lo pathconf.lo popen.lo \
 	posix_spawn.lo posix_spawnp.lo rawmemchr.lo readlink.lo \
 	readlinkat.lo realpath.lo rel2abs.lo rel2absat.lo remove.lo \
-	removexattr.lo rename.lo renameat.lo revoke.lo rmdir.lo \
+	removexattr.lo rename.lo renameat.lo renameat2.lo revoke.lo rmdir.lo \
 	rpl_lstat.lo scandir.lo scandir64.lo setenv.lo setxattr.lo \
 	stat.lo stat64.lo statfs.lo statfs64.lo statvfs.lo \
 	statvfs64.lo stpcpy.lo strchrnul.lo strlcpy.lo symlink.lo \
@@ -509,6 +509,7 @@ libfakechroot_la_SOURCES = \
     removexattr.c \
     rename.c \
     renameat.c \
+    renameat2.c \
     revoke.c \
     rmdir.c \
     rpl_lstat.c \
@@ -754,6 +755,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/removexattr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rename.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/renameat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/renameat2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/revoke.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rmdir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rpl_lstat.Plo@am__quote@
