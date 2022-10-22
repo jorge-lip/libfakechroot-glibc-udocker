@@ -745,6 +745,15 @@
 /* Define to 1 if you have the `statx' function. */
 #undef HAVE_STATX
 
+/* Define to 1 if you have the `fstatat' function. */
+#undef HAVE_FSTATAT
+
+/* Define to 1 if you have the `fstatat64' function. */
+#undef HAVE_FSTATAT64
+
+/* Define to 1 if you have the `newfstatat' function. */
+#undef HAVE_NEWFSTATAT
+
 /* Define to 1 if you have the `_xftw' function. */
 #undef HAVE__XFTW
 

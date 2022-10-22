@@ -173,6 +173,9 @@ libfakechroot_la_SOURCES = \
     utimensat.c \
     utimes.c \
     statx.c \
+    fstatat.c \
+    fstatat64.c \
+    newfstatat.c \
     patchelf.c
 libfakechroot_la_LDFLAGS = -avoid-version
 
