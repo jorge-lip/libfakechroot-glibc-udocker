@@ -44,8 +44,14 @@
 #include "readlink.h"
 #include "dedotdot.h"
 
+#ifdef UDOCKER_LOOP_BACKTRACE
+# include <execinfo.h>
+# define BACKTRACE_BUF_SIZE 1024
+#endif
+
 char * fakechroot_base;
 size_t fakechroot_base_len;
+char * fakechroot_libc;
 int    debug_level;
 
 int lib_init = 0;
@@ -89,7 +95,8 @@ char *preserve_env_list[] = {
     "FAKECHROOT_DIR_MAP",
     "FAKECHROOT_DISALLOW_ENV_CHANGES",
     "FAKECHROOT_PATCH_LAST_TIME",
-    "FAKECHROOT_EXPAND_SYMLINKS"
+    "FAKECHROOT_EXPAND_SYMLINKS",
+    "FAKECHROOT_LIBC"
 };
 
 const int preserve_env_list_count = sizeof preserve_env_list / sizeof preserve_env_list[0];
@@ -147,6 +154,7 @@ void fakechroot_init (void)
         debug("fakechroot_init()");
         fakechroot_base = getenv("FAKECHROOT_BASE");
         fakechroot_base_len = strlen(fakechroot_base);
+	fakechroot_libc = getenv("FAKECHROOT_LIBC");
         fakechroot_expand_symlinks = getenv("FAKECHROOT_EXPAND_SYMLINKS");
         if (fakechroot_expand_symlinks &&
                 strstr(fakechroot_expand_symlinks, "false") == fakechroot_expand_symlinks)
@@ -178,6 +186,11 @@ void fakechroot_init (void)
     }
 }
 
+/*
+ * Preserve environment variables by copying them to an array
+ * preserve_env_list contains the list of env variables to preserve (keys)
+ * preserve_env_values contains the values fro the keys obtained with getenv
+ */
 LOCAL void fakechroot_preserve_env_values(void)
 {
     int j;
@@ -197,6 +210,10 @@ LOCAL void fakechroot_preserve_env_values(void)
     }
 }
 
+/*
+ * getenv like function, returns the value of a given env var (search_key)
+ * either by searching in the preserved environment variables or via getenv
+ */
 char * fakechroot_preserve_getenv(char * search_key)
 {
     int j;
@@ -212,6 +229,9 @@ char * fakechroot_preserve_getenv(char * search_key)
     }
 }
 
+/*
+ * Used to load the FAKECHROOT_EXCLUDE_PATH
+ */
 LOCAL int fakechroot_load_list (char * list[], int length[], int list_len, char * env_var)
 {
     int list_pos = 0;
@@ -235,6 +255,9 @@ LOCAL int fakechroot_load_list (char * list[], int length[], int list_len, char 
     return list_pos;
 }
 
+/*
+ * Search for expression in list
+ */
 LOCAL int fakechroot_in_list (char * list[], int length[], int list_len, char * search)
 {
     int list_pos;
@@ -246,7 +269,9 @@ LOCAL int fakechroot_in_list (char * list[], int length[], int list_len, char * 
     return 0;
 }
 
-/* Lazily load function */
+/* 
+ * Lazily load function
+ * */
 LOCAL fakechroot_wrapperfn_t fakechroot_loadfunc (struct fakechroot_wrapper * w)
 {
     char *msg;
@@ -258,7 +283,9 @@ LOCAL fakechroot_wrapperfn_t fakechroot_loadfunc (struct fakechroot_wrapper * w)
     return w->nextfunc;
 }
 
-/* Check if path is on exclude list */
+/* 
+ * Check if p_path is on exclude list
+ */
 LOCAL int fakechroot_localdir (const char * p_path)
 {
     char *v_path = (char *)p_path;
@@ -310,7 +337,7 @@ LOCAL int fakechroot_localdir (const char * p_path)
 /*
  * Parse the FAKECHROOT_CMD_SUBST environment variable (the first
  * parameter) and if there is a match with filename, return the
- * substitution in cmd_subst.  Returns non-zero if there was a match.
+ * substitution in cmd_subst.  Returns non-zero if there is a match.
  *
  * FAKECHROOT_CMD_SUBST=cmd=subst:cmd=subst:...
  */
@@ -346,9 +373,14 @@ LOCAL int fakechroot_try_cmd_subst (char * env, const char * filename, char * cm
 }
 
 /*
- * Indigo udocker specific code ************************************************
+ * *****************************************************************************
+ * Indigo udocker specific code
+ * *****************************************************************************
  */
 
+/*
+ * Load the list of maps between  host_dir!container_dir
+ */
 LOCAL int 
 fakechroot_load_keyval (char * listkey[], char * listval[], int lenkey[], int lenval[], int list_len, char * env_var)
 {
@@ -386,7 +418,10 @@ fakechroot_load_keyval (char * listkey[], char * listval[], int lenkey[], int le
     return list_pos;
 }
 
-/* Check if path is on container mapped directories list */
+/* 
+ * Check if p_path is mapped to a host file or directory by
+ * searching the map_cont_list
+ */
 LOCAL int fakechroot_ismapdir (const char * p_path)
 {
     char *v_path = (char *)p_path;
@@ -431,7 +466,9 @@ LOCAL int fakechroot_ismapdir (const char * p_path)
     return -1;
 }
 
-/* Replace prefix of path with host path */
+/*
+ * Resolves container p_path to host path
+ */
 LOCAL int fakechroot_getmapdir(const char * p_path, int map_pos, char * resolved)
 {
     if (p_path[0] != '/') {
@@ -454,7 +491,9 @@ LOCAL int fakechroot_getmapdir(const char * p_path, int map_pos, char * resolved
     return 1;
 }
 
-/* Check if path is in map_host_list */
+/*
+ * Check if p_path is in map_host_list
+ */
 LOCAL int fakechroot_ishostmapdir (const char * p_path)
 {
     char *v_path = (char *)p_path;
@@ -508,7 +547,9 @@ LOCAL int fakechroot_ishostmapdir (const char * p_path)
     return -1;
 }
 
-/* Replace prefix of path with cont path */
+/* 
+ * Replace prefix of path with container path
+ */
 LOCAL int fakechroot_getcontmapdir(const char * p_path, int map_pos, char * resolved)
 {
     int p_path_suffix_len = strlen(p_path + map_host_length[map_pos]);
@@ -519,7 +560,9 @@ LOCAL int fakechroot_getcontmapdir(const char * p_path, int map_pos, char * reso
     return 1;
 }
 
-/* Dump a list content */
+/* 
+ * Dump a list content
+ */
 LOCAL void fakechroot_dump_list(char * list[], int length[], int list_len)
 {
     int list_pos;
@@ -535,7 +578,6 @@ LOCAL void fakechroot_dump_list(char * list[], int length[], int list_len)
  * path: path to be translated
  * llink: 0 translate all symlinks, 1 do not translate the last element of the path
  */
-
 char * udocker_realpath(const char *path, char *resolved, int llink) {
 
     if ((! fakechroot_expand_symlinks) || (! path) || *path == '\0' || *path != '/') {
@@ -589,4 +631,74 @@ char * udocker_realpath(const char *path, char *resolved, int llink) {
     }
     return path;
 }
+
+/* 
+ * udocker checking if next call to function is to libc.so
+ * check for interception of calls by other shared libraries
+ * fakechroot_libc holds the path to libc.so in the container
+ */
+LOCAL int next_is_libc(char *function_name) {
+    Dl_info dlinfo;
+    void *next_call;
+    if ((next_call = dlsym(RTLD_NEXT, function_name)) && fakechroot_libc)
+        if (dladdr(next_call, &dlinfo))
+            if (dlinfo.dli_fname)
+                return strstr(dlinfo.dli_fname, fakechroot_libc);
+    return NULL;
+}
+
+/*
+ * udocker obtain function address from libc shared library
+ * fakechroot_libc holds the path to libc.so in the container
+ */
+LOCAL void * get_from_libc(char *function_name) {
+    void *next_call;
+    void *libc_fd = NULL;
+    if (! fakechroot_libc) return NULL;
+    if (libc_fd = dlopen(fakechroot_libc, RTLD_LAZY|RTLD_LOCAL|RTLD_DEEPBIND|RTLD_NODELETE)) {
+        if (next_call = dlsym(libc_fd, function_name)) {
+            debug("get_from_libc: returning function (%s)", function_name);
+            dlclose(libc_fd);
+            return next_call;
+        }
+        dlclose(libc_fd);
+    }
+    return NULL;
+}
+
+#ifdef UDOCKER_LOOP_BACKTRACE
+# define EXPRESSION_LEN 100
+
+/*
+ * Return the number of calls to function_name in the stack
+ * Useful to detect loops caused by interception of calls by other 
+ * libraries
+ */
+LOCAL int calls_in_stack(char *function_name)
+{
+    size_t nptrs;
+    int calls=0;
+    void *buffer[BACKTRACE_BUF_SIZE];
+    char **strings;
+    char function_expression[EXPRESSION_LEN];
+
+    nptrs = backtrace(buffer, BACKTRACE_BUF_SIZE);
+    debug("backtrace() stack has %d addresses", nptrs);
+
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) return 0;
+
+    snprintf(function_expression, EXPRESSION_LEN, "(%s+", function_name);
+
+    for (size_t j = 0; j < nptrs; j++) {
+        debug("stack (%s): %s", function_name, strings[j]);
+        if (! strings[j]) continue;
+        if (strstr(strings[j], function_name)) calls++;
+        if (calls >= 2) break;
+    }
+    free(strings);
+    return calls;
+}
+
+#endif
 

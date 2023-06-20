@@ -24,12 +24,40 @@
 
 #include "libfakechroot.h"
 
+#include <errno.h>
+
+/*
+ * Make sure we call the removexattr, from libc and not from libattr
+ * Otherwise we get a loop where fakechroot calls libattr and then
+ * libattr calls libc, this last call is also intercepted by
+ * fakechroot creating a loop.
+ *
+ * We get the function address directly from libc, alternatively
+ * if FAKECHROOT_LIBC is not defined an error is returned.
+ */
 
 wrapper(removexattr, int, (const char * path, const char * name))
 {
+    static int (*next_removexattr)(const char *, const char *);
+
+    debug("removexattr(\"%s\", \"%s\")", path, name);
+    expand_chroot_path(path);
+
+    if (! next_removexattr)
+        next_removexattr = get_from_libc("removexattr");
+
+    if (next_removexattr)
+        return next_removexattr(path, name);
+
+    debug("removexattr return(-1)");
+    __set_errno(ENOTSUP);
+    return -1;
+
+    /*
     debug("removexattr(\"%s\", \"%s\")", path, name);
     expand_chroot_path(path);
     return nextcall(removexattr)(path, name);
+    */
 }
 
 #else

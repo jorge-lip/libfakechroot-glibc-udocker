@@ -26,12 +26,40 @@
 #include <stddef.h>
 #include "libfakechroot.h"
 
+#include <errno.h>
+
+/*
+ * Make sure we call the llistxattr, from libc and not from libattr
+ * Otherwise we get a loop where fakechroot calls libattr and then
+ * libattr calls libc, this last call is also intercepted by
+ * fakechroot creating a loop.
+ *
+ * We get the function address directly from libc, alternatively
+ * if FAKECHROOT_LIBC is not defined an error is returned.
+ */
 
 wrapper(llistxattr, ssize_t, (const char *path, char *list, size_t size))
 {
+    static ssize_t (*next_llistxattr)(const char *, char *, size_t);
+
+    debug("llistxattr(\"%s\", &list, %zd)", path, list);
+    l_expand_chroot_path(path);
+
+    if (! next_llistxattr)
+        next_llistxattr = get_from_libc("llistxattr");
+
+    if (next_llistxattr)
+        return next_llistxattr(path, list, size);
+
+    debug("llistxattr return(-1)");
+    __set_errno(ENOTSUP);
+    return -1;
+
+    /*
     debug("llistxattr(\"%s\", &list, %zd)", path, list);
     l_expand_chroot_path(path);
     return nextcall(llistxattr)(path, list, size);
+    */
 }
 
 #else

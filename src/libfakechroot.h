@@ -368,5 +368,12 @@ int fakechroot_iswlib(const int fd, char ** wlibnam);
 int fakechroot_upatch_elf(const char * filename);
 char * udocker_realpath(const char * path, char * resolved, int llink);
 
+int next_is_libc(char *);
+void * get_from_libc(char *);
+
+# ifdef UDOCKER_LOOP_BACKTRACE
+int calls_in_stack(char *);
+# endif
+
 #endif
 

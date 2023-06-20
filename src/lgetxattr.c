@@ -26,12 +26,40 @@
 #include <stddef.h>
 #include "libfakechroot.h"
 
+#include <errno.h>
+
+/*
+ * Make sure we call the lgetxattr from libc and not from libattr
+ * Otherwise we get a loop where fakechroot calls libattr and then
+ * libattr calls libc, this last call is also intercepted by 
+ * fakechroot creating a loop.
+ *
+ * We get the function address directly from libc, alternatively
+ * if FAKECHROOT_LIBC is not defined an error is returned.
+ */
 
 wrapper(lgetxattr, ssize_t, (const char * path, const char * name, void * value, size_t size))
 {
+    static ssize_t (*next_lgetxattr)(const char *, const char *, void *, size_t);
+
+    debug("lgetxattr(\"%s\", \"%s\", &value, %zd)", path, name, size);
+    l_expand_chroot_path(path);
+
+    if (! next_lgetxattr)
+        next_lgetxattr = get_from_libc("lgetxattr");
+
+    if (next_lgetxattr)
+        return next_lgetxattr(path, name, value, size);
+
+    debug("lgetxattr return(-1)");
+    __set_errno(ENOTSUP);
+    return -1;
+
+    /*
     debug("lgetxattr(\"%s\", \"%s\", &value, %zd)", path, name, size);
     l_expand_chroot_path(path);
     return nextcall(lgetxattr)(path, name, value, size);
+    */
 }
 
 #else
