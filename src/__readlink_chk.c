@@ -39,9 +39,21 @@ wrapper(__readlink_chk, ssize_t, (const char * path, char * buf, size_t bufsiz, 
     debug("__readlink_chk(\"%s\", &buf, %zd, %zd)", path, bufsiz, buflen);
     l_expand_chroot_path(path);
 
+    /*
+     *  udocker: __readlink_chk fails with buffer overflow detected on Fedora 38
+     */
+    /* 
     if ((linksize = nextcall(__readlink_chk)(path, tmp, FAKECHROOT_PATH_MAX-1, buflen)) == -1) {
         return -1;
     }
+    */
+    if (bufsiz >= FAKECHROOT_PATH_MAX) {
+            bufsiz = (FAKECHROOT_PATH_MAX -1);
+    }
+    if ((linksize = nextcall(__readlink_chk)(path, tmp, bufsiz, buflen)) == -1) {
+        return -1;
+    }
+
     tmp[linksize] = '\0';
 
     if (fakechroot_base != NULL) {
