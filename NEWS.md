@@ -1,3 +1,19 @@
+## Version 2.19 UDOCKER-4
+
+* Fix dladdr(), dlopen(), dlmopen(), dl_iterate_phdr()
+* Add dladdr1()
+* Add execvpe(), execveat()
+* Add getauxval()
+* Add scandirat(), scandirat64()
+* Change stat64(), lstat64(), stat()
+* Add narrowing of program_invocation_name
+* Improve command substitution
+
+## Version 2.19 UDOCKER-3
+
+* Hardening of __readlink_chk() 
+* Prevent loop in xattr() functions in RedHat distributions 
+
 ## Version 2.19 UDOCKER-2
 
 * Add fstatat(), fstatat64(), newfstatat()
