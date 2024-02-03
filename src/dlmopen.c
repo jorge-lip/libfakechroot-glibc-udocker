@@ -26,11 +26,21 @@
 #include <dlfcn.h>
 #include "libfakechroot.h"
 
+/*
+ * udocker  2-Feb-2024
+ * Narrowing of filename is only performed when it contains a slash. 
+ * A name without a slash does not mean that the file is in the current 
+ * working directory, instead tells the loader to search for the file.
+ */
+
 
 wrapper(dlmopen, void *, (Lmid_t nsid, const char * filename, int flag))
 {
     debug("dlmopen(&nsid, \"%s\", %d)", filename, flag);
-    expand_chroot_path(filename);
+    if (filename && strchr(filename, '/')) {
+        expand_chroot_path(filename);
+    }
+
     return nextcall(dlmopen)(nsid, filename, flag);
 }
 

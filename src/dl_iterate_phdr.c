@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE_DL_ITERATE_PHDR
@@ -27,6 +26,13 @@
 
 #include "libfakechroot.h"
 
+/*
+ * udocker  2-Feb-2024
+ * Narrowing of dlpi_name is only performed when it contains a slash.
+ * A dlpi_name without a slash does not mean that the file is in the 
+ * current working directory.
+ */
+
 
 #define DL_ITERATE_PHDR_CALLBACK_ARGS struct dl_phdr_info * info, size_t size, void * data
 
@@ -34,10 +40,13 @@ static int (* dl_iterate_phdr_callback_saved)(DL_ITERATE_PHDR_CALLBACK_ARGS);
 
 static int dl_iterate_phdr_callback(DL_ITERATE_PHDR_CALLBACK_ARGS)
 {
-    if (info->dlpi_name) {
-/*        narrow_chroot_path(info->dlpi_name);*/
+    if (info->dlpi_name && strchr(info->dlpi_name, '/')) {
+        narrow_chroot_path(info->dlpi_name);
+	/*
         udocker_host_narrow_chroot_path(info->dlpi_name);
+	*/
     }
+    debug("dl_iterate_phdr_callback returned %s", info->dlpi_name);
     return dl_iterate_phdr_callback_saved(info, size, data);
 }
 

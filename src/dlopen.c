@@ -28,9 +28,8 @@
 wrapper(dlopen, void *, (const char * filename, int flag))
 {
     debug("dlopen(\"%s\", %d)", filename, flag);
-    if (filename && strchr(filename, '/') != NULL) {
+    if (filename && strchr(filename, '/')) {
         expand_chroot_path(filename);
-        debug("dlopen(\"%s\", %d)", filename, flag);
     }
 
     return nextcall(dlopen)(filename, flag);

@@ -24,8 +24,17 @@
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
+#include <string.h>
 
 #include "libfakechroot.h"
+
+/*
+ * udocker  2-Feb-2024
+ * Narrowing of dli_fname and dli_sname is only performed
+ * when they contain a slash. A name without a slash does
+ * not mean that the file is in the current working
+ * directory. 
+ */
 
 
 wrapper(dladdr, int, (const void * addr, Dl_info * info))
@@ -36,13 +45,19 @@ wrapper(dladdr, int, (const void * addr, Dl_info * info))
 
     ret = nextcall(dladdr)(addr, info);
 
-    if (info->dli_fname) {
-/*        narrow_chroot_path(info->dli_fname);*/
+    if (info->dli_fname && strchr(info->dli_fname, '/')) {
+        narrow_chroot_path(info->dli_fname);
+	/*
         udocker_host_narrow_chroot_path(info->dli_fname);
+	*/
     }
-    if (info->dli_sname) {
-/*        narrow_chroot_path(info->dli_sname);*/
+
+    /* translate symbol only if looks like a path (has a slash) */
+    if (info->dli_sname && strchr(info->dli_sname, '/')) {
+        narrow_chroot_path(info->dli_sname);
+	/*
         udocker_host_narrow_chroot_path(info->dli_sname);
+	*/
     }
 
     return ret;
