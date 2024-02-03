@@ -45,6 +45,7 @@ libfakechroot_la_SOURCES = \
     dedotdot.h \
     dl_iterate_phdr.c \
     dladdr.c \
+    dladdr1.c \
     dlmopen.c \
     dlopen.c \
     eaccess.c \
@@ -55,6 +56,8 @@ libfakechroot_la_SOURCES = \
     execv.c \
     execve.c \
     execvp.c \
+    execveat.c \
+    execvpe.c \
     faccessat.c \
     fchmodat.c \
     fchownat.c \
@@ -68,6 +71,7 @@ libfakechroot_la_SOURCES = \
     ftw.c \
     ftw64.c \
     futimesat.c \
+    getauxval.c \
     get_current_dir_name.c \
     getcwd.c \
     getcwd.h \
@@ -144,6 +148,8 @@ libfakechroot_la_SOURCES = \
     rpl_lstat.c \
     scandir.c \
     scandir64.c \
+    scandirat.c \
+    scandirat64.c \
     setenv.c \
     setenv.h \
     setxattr.c \

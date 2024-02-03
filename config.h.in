@@ -159,6 +159,9 @@
 /* Define to 1 if you have the `dladdr' function. */
 #undef HAVE_DLADDR
 
+/* Define to 1 if you have the `dladdr1' function. */
+#undef HAVE_DLADDR1
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -197,6 +200,12 @@
 
 /* Define to 1 if you have the `execvp' function. */
 #undef HAVE_EXECVP
+
+/* Define to 1 if you have the `execveat' function. */
+#undef HAVE_EXECVEAT
+
+/* Define to 1 if you have the `execvpe' function. */
+#undef HAVE_EXECVPE
 
 /* Define to 1 if you have the `faccessat' function. */
 #undef HAVE_FACCESSAT
@@ -263,6 +272,9 @@
 
 /* Define to 1 if you have the `futimesat' function. */
 #undef HAVE_FUTIMESAT
+
+/* Define to 1 if you have the `getauxval' function. */
+#undef HAVE_GETAUXVAL
 
 /* Define to 1 if you have the `getcwd' function. */
 #undef HAVE_GETCWD
@@ -540,6 +552,12 @@
 
 /* Define to 1 if you have the `scandir64' function. */
 #undef HAVE_SCANDIR64
+
+/* Define to 1 if you have the `scandirat' function. */
+#undef HAVE_SCANDIRAT
+
+/* Define to 1 if you have the `scandirat64' function. */
+#undef HAVE_SCANDIRAT64
 
 /* Define to 1 if the type of arg 1 for `scandir64' is `const char *_' */
 #undef HAVE_SCANDIR64_TYPE_ARG1_CONST_CHAR_P_

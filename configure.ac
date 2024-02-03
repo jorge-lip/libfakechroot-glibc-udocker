@@ -165,6 +165,7 @@ AC_CHECK_FUNCS(m4_normalize([
     creat64
     dl_iterate_phdr
     dladdr
+    dladdr1
     dlmopen
     dlopen
     eaccess
@@ -175,6 +176,8 @@ AC_CHECK_FUNCS(m4_normalize([
     execv
     execve
     execvp
+    execveat
+    execvpe
     faccessat
     fchdir
     fchmodat
@@ -192,6 +195,7 @@ AC_CHECK_FUNCS(m4_normalize([
     ftw
     ftw64
     futimesat
+    getauxval
     get_current_dir_name
     getcwd
     getpeername
@@ -256,6 +260,8 @@ AC_CHECK_FUNCS(m4_normalize([
     rmdir
     scandir
     scandir64
+    scandirat
+    scandirat64
     setenv
     setxattr
     stat

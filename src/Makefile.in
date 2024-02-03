@@ -140,11 +140,11 @@ am_libfakechroot_la_OBJECTS = __fxstatat.lo __fxstatat64.lo \
 	access.lo acct.lo audit_log_acct_message.lo bind.lo \
 	bindtextdomain.lo canonicalize_file_name.lo chdir.lo chmod.lo \
 	chown.lo chroot.lo clearenv.lo close.lo connect.lo creat.lo creat64.lo \
-	dedotdot.lo dl_iterate_phdr.lo dladdr.lo dlmopen.lo dlopen.lo \
+	dedotdot.lo dl_iterate_phdr.lo dladdr.lo dladdr1.lo dlmopen.lo dlopen.lo \
 	eaccess.lo euidaccess.lo execl.lo execle.lo execlp.lo execv.lo \
-	execve.lo execvp.lo faccessat.lo fchmodat.lo fchownat.lo \
+	execve.lo execvp.lo execveat.lo execvpe.lo faccessat.lo fchmodat.lo fchownat.lo \
 	fclose.lo fopen.lo fopen64.lo freopen.lo freopen64.lo fts.lo ftw.lo \
-	ftw64.lo futimesat.lo get_current_dir_name.lo getcwd.lo \
+	ftw64.lo futimesat.lo getauxval.lo get_current_dir_name.lo getcwd.lo \
 	getcwd_real.lo getpeername.lo getsockname.lo getwd.lo \
 	getxattr.lo glob.lo glob64.lo glob_pattern_p.lo \
 	inotify_add_watch.lo lchmod.lo lchown.lo lckpwdf.lo \
@@ -158,7 +158,7 @@ am_libfakechroot_la_OBJECTS = __fxstatat.lo __fxstatat64.lo \
 	posix_spawn.lo posix_spawnp.lo rawmemchr.lo readlink.lo \
 	readlinkat.lo realpath.lo rel2abs.lo rel2absat.lo remove.lo \
 	removexattr.lo rename.lo renameat.lo renameat2.lo revoke.lo rmdir.lo \
-	rpl_lstat.lo scandir.lo scandir64.lo setenv.lo setxattr.lo \
+	rpl_lstat.lo scandir.lo scandir64.lo scandirat.lo scandirat64.lo setenv.lo setxattr.lo \
 	stat.lo stat64.lo statfs.lo statfs64.lo statvfs.lo \
 	statvfs64.lo stpcpy.lo strchrnul.lo strlcpy.lo symlink.lo \
 	symlinkat.lo system.lo tempnam.lo tmpnam.lo truncate.lo \
@@ -417,6 +417,7 @@ libfakechroot_la_SOURCES = \
     dedotdot.h \
     dl_iterate_phdr.c \
     dladdr.c \
+    dladdr1.c \
     dlmopen.c \
     dlopen.c \
     eaccess.c \
@@ -427,6 +428,8 @@ libfakechroot_la_SOURCES = \
     execv.c \
     execve.c \
     execvp.c \
+    execveat.c \
+    execvpe.c \
     faccessat.c \
     fchmodat.c \
     fchownat.c \
@@ -439,6 +442,7 @@ libfakechroot_la_SOURCES = \
     ftw.c \
     ftw64.c \
     futimesat.c \
+    getauxval.c \
     get_current_dir_name.c \
     getcwd.c \
     getcwd.h \
@@ -515,6 +519,8 @@ libfakechroot_la_SOURCES = \
     rpl_lstat.c \
     scandir.c \
     scandir64.c \
+    scandirat.c \
+    scandirat64.c \
     setenv.c \
     setenv.h \
     setxattr.c \
@@ -672,6 +678,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dedotdot.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dl_iterate_phdr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dladdr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dladdr1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlmopen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlopen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/eaccess.Plo@am__quote@
@@ -682,6 +689,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execve.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execvp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execveat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/execvpe.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/faccessat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fchmodat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fchownat.Plo@am__quote@
@@ -694,6 +703,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ftw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ftw64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/futimesat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getauxval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/get_current_dir_name.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getcwd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getcwd_real.Plo@am__quote@
@@ -761,6 +771,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rpl_lstat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scandir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scandir64.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scandirat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scandirat64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setenv.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setxattr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stat.Plo@am__quote@
