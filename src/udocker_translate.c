@@ -11,7 +11,13 @@
 #include <config.h>
 #include <sys/types.h>
 
-
+/*
+ * THIS FILE IS NOT INCORPORATED IN THE fakechoot LIBRARY
+ * 
+ * This is a test program to verify the implementation of
+ * udocker_realpath() and udocker readlink() whose actual
+ * real and usable implementations are in fakechroot.c
+ */
 
 size_t
 strlcpy(char *dst, const char *src, size_t siz)
@@ -196,6 +202,10 @@ void udocker_realpath(char *path) {
 	}
 	strlcpy(path, resolved, FAKECHROOT_PATH_MAX);
 }
+
+/*
+ * Main program
+ */
 
 int main() {
 	char resolved[1000];
