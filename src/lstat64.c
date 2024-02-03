@@ -20,7 +20,17 @@
 
 #include <config.h>
 
+/*
+ * udocker  23-Jan-2024
+ * stat64 no longer calls __xstat64 in gnu libc from 2.33 onwards
+ * instead stat64 calls:
+ * __stat64 > __fstatat64 > fstatat64_time64_stat > SYSCALL(newstatat)
+ *
+ 
 #if defined(HAVE_LSTAT64) && !defined(HAVE___LXSTAT64)
+*/
+
+#if defined(HAVE_LSTAT64)
 
 #define _LARGEFILE64_SOURCE
 #define _BSD_SOURCE

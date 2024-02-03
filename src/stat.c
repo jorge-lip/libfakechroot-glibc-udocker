@@ -20,7 +20,15 @@
 
 #include <config.h>
 
+/*
+ * udocker  23-Jan-2024
+ * stat64 no longer calls __xstat64 in gnu libc from 2.33 onwards
+ * instead stat64 calls:
+ * __stat64 > __fstatat64 > fstatat64_time64_stat > SYSCALL(newstatat)
+ *
+
 #ifndef HAVE___XSTAT
+*/
 
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
@@ -38,6 +46,8 @@ wrapper(stat, int, (const char * file_name, struct stat * buf))
     return nextcall(stat)(file_name, buf);
 }
 
+/*
 #else
 typedef int empty_translation_unit;
 #endif
+*/
