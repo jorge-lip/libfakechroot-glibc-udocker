@@ -34,6 +34,7 @@
 #include <pwd.h>
 #include <dlfcn.h>
 #include <alloca.h>
+#include <errno.h>
 
 #include "setenv.h"
 #include "libfakechroot.h"
@@ -53,6 +54,8 @@ char * fakechroot_base;
 size_t fakechroot_base_len;
 char * fakechroot_libc;
 int    debug_level;
+
+#define DEBUG_MSG_LEN 2048
 
 int lib_init = 0;
 int fakechroot_disallow_env_changes = -1;
@@ -103,6 +106,7 @@ const int preserve_env_list_count = sizeof preserve_env_list / sizeof preserve_e
 
 char **preserve_env_values;
 
+LOCAL void fakechroot_narrow_program_name ();
 LOCAL void fakechroot_preserve_env_values(void);
 LOCAL int fakechroot_load_keyval (char * listkey[], char * listval[], int lenkey[], int lenval[], int list_len, char * env_var);
 LOCAL void fakechroot_dump_list(char * list[], int length[], int list_len);
@@ -112,7 +116,7 @@ LOCAL int fakechroot_load_list (char * list[], int length[], int list_len, char 
 LOCAL int fakechroot_debug (const char *fmt, ...)
 {
     int ret;
-    char newfmt[2048];
+    char newfmt[DEBUG_MSG_LEN];
 
     va_list ap;
     va_start(ap, fmt);
@@ -120,7 +124,7 @@ LOCAL int fakechroot_debug (const char *fmt, ...)
     if (! debug_level)
         return 0;
 
-    sprintf(newfmt, PACKAGE ": %s\n", fmt);
+    snprintf(newfmt, DEBUG_MSG_LEN, PACKAGE ": %s\n", fmt);
 
     ret = vfprintf(stderr, newfmt, ap);
     va_end(ap);
@@ -151,7 +155,7 @@ void fakechroot_init (void)
         }
 
         debug_level = (int) getenv("FAKECHROOT_DEBUG");
-        debug("fakechroot_init()");
+        debug("fakechroot_init() starting");
         fakechroot_base = getenv("FAKECHROOT_BASE");
         fakechroot_base_len = strlen(fakechroot_base);
 	fakechroot_libc = getenv("FAKECHROOT_LIBC");
@@ -180,9 +184,12 @@ void fakechroot_init (void)
         __setenv("FAKECHROOT_VERSION", FAKECHROOT, 1);
 
         fakechroot_preserve_env_values();
+	fakechroot_narrow_program_name();
+
         fakechroot_iniwlib();
 
         lib_init = 2;
+        debug("fakechroot_init() finished");
     }
 }
 
@@ -349,9 +356,9 @@ LOCAL int fakechroot_try_cmd_subst (char * env, const char * filename, char * cm
     if (env == NULL || filename == NULL)
         return 0;
 
-    /* Remove trailing dot from filename */
-    if (filename[0] == '.' && filename[1] == '/')
-        filename++;
+    /* cleanup filename */
+    dedotdot(filename);
+
     len = strlen(filename);
 
     do {
@@ -377,6 +384,21 @@ LOCAL int fakechroot_try_cmd_subst (char * env, const char * filename, char * cm
  * Indigo udocker specific code
  * *****************************************************************************
  */
+
+/*
+ * set program_invocation_name to a path within the container 
+ * this removes the host prefix see man 3 program_invocation_name
+ */
+LOCAL void
+fakechroot_narrow_program_name () 
+{
+    extern char *program_invocation_name;
+    if (program_invocation_name && *program_invocation_name) {
+	if (strchr(program_invocation_name, '/')) {
+            udocker_host_narrow_chroot_path(program_invocation_name);
+	}
+    }
+}
 
 /*
  * Load the list of maps between  host_dir!container_dir
@@ -467,7 +489,7 @@ LOCAL int fakechroot_ismapdir (const char * p_path)
 }
 
 /*
- * Resolves container p_path to host path
+ * Resolves container p_path to a host path
  */
 LOCAL int fakechroot_getmapdir(const char * p_path, int map_pos, char * resolved)
 {
@@ -475,17 +497,23 @@ LOCAL int fakechroot_getmapdir(const char * p_path, int map_pos, char * resolved
         int len, p_path_len;
         getcwd(resolved, FAKECHROOT_PATH_MAX);
         len = strlen(resolved);
-        resolved[len] =  '/';
         p_path_len = strlen(p_path);
-        if (len + 1 + p_path_len < FAKECHROOT_PATH_MAX)
+        if (len + 1 + p_path_len < FAKECHROOT_PATH_MAX) {
+            resolved[len] =  '/';
             strlcpy(resolved + len + 1, p_path, p_path_len + 1);
+	} else {
+	    debug("fakechroot_getmapdir(%s) buffer overflow", p_path);
+	}
     }
     else {
         int p_path_suffix_len;
         p_path_suffix_len = strlen(p_path + map_cont_length[map_pos]);
         strlcpy(resolved, map_host_list[map_pos], map_host_length[map_pos] + 1);
-        if (map_host_length[map_pos] + p_path_suffix_len < FAKECHROOT_PATH_MAX)
+        if (map_host_length[map_pos] + p_path_suffix_len < FAKECHROOT_PATH_MAX) {
             strlcpy(resolved + map_host_length[map_pos], p_path + map_cont_length[map_pos], p_path_suffix_len + 1);
+	} else {
+	    debug("fakechroot_getmapdir(%s) buffer overflow", p_path);
+	}
     }
     debug("fakechroot_getmapdir(%s) -> %s", p_path, resolved);
     return 1;
@@ -516,10 +544,13 @@ LOCAL int fakechroot_ishostmapdir (const char * p_path)
         getcwd_real(cwd_path, FAKECHROOT_PATH_MAX);
         v_path = cwd_path;
         len = strlen(v_path);
-        v_path[len] = '/';
         p_path_len = strlen(p_path);
-        if (len + 1 + p_path_len < FAKECHROOT_PATH_MAX)
+        if (len + 1 + p_path_len < FAKECHROOT_PATH_MAX) {
+            v_path[len] = '/';
             strlcpy(v_path + len + 1, p_path, p_path_len + 1);
+	} else {
+	    debug("fakechroot_ishostmapdir(%s) buffer overflow", p_path);
+	}
     }
     else {
         len = strlen(v_path);
@@ -554,14 +585,17 @@ LOCAL int fakechroot_getcontmapdir(const char * p_path, int map_pos, char * reso
 {
     int p_path_suffix_len = strlen(p_path + map_host_length[map_pos]);
     strlcpy(resolved, map_cont_list[map_pos], map_cont_length[map_pos] + 1);
-    if (map_cont_length[map_pos] + p_path_suffix_len < FAKECHROOT_PATH_MAX)
+    if (map_cont_length[map_pos] + p_path_suffix_len < FAKECHROOT_PATH_MAX) {
         strlcpy(resolved + map_cont_length[map_pos], p_path + map_host_length[map_pos], p_path_suffix_len + 1);
+    } else {
+        debug("fakechroot_getcontmapdir(%s) buffer overflow", p_path);
+    }
     debug("fakechroot_getcontmapdir(%s) -> %s", p_path, resolved);
     return 1;
 }
 
 /* 
- * Dump a list content
+ * Dump the content of a list
  */
 LOCAL void fakechroot_dump_list(char * list[], int length[], int list_len)
 {
