@@ -1,5 +1,7 @@
 ## Version 2.19 UDOCKER-4
 
+3 Feb 2024
+
 * Fix dladdr(), dlopen(), dlmopen(), dl_iterate_phdr()
 * Add dladdr1()
 * Add execvpe(), execveat()
@@ -26,6 +28,7 @@
 ## Version 2.18 UDOCKER-1
 
 * Add statx(), renameat(), renameat2() support
+* Adaptation of fakechroot for udocker
 
 ## Version 2.18
 
