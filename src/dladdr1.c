@@ -45,7 +45,7 @@ wrapper(dladdr1, int, (const void * addr, Dl_info * info, void **extra_info, int
 
     debug("dladdr1(0x%x, &info, &&extra_info, %d)", addr, flags);
 
-    if ((ret = nextcall(dladdr1)(addr, info, extra_info, flags)) == 0) {
+    if ((ret = (int) nextcall(dladdr1)(addr, info, extra_info, flags)) == 0) {
 	return 0;
     }
 
